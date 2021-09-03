@@ -7,21 +7,21 @@ public class Method {
 	// -------------------
 	// Attributs
 	// -------------------
-	
+
 	private String name;
-	private int visibility;
+	private String visibility;
 	private String returnType;
 	private List<Variable> variableList;
 	private boolean isAbstract;
 	private boolean isStatic;
-	
+
 	// -------------------
 	// Methods
 	// -------------------
-	
+
 	// Constructor
-	
-	public Method(String name, int visibility, String returnType, List<Variable> variableList, boolean isAbstract,
+
+	public Method(String name, String visibility, String returnType, List<Variable> variableList, boolean isAbstract,
 			boolean isStatic) {
 		this.name = name;
 		this.visibility = visibility;
@@ -30,8 +30,8 @@ public class Method {
 		this.isAbstract = isAbstract;
 		this.isStatic = isStatic;
 	}
-	
-	public Method(String name, int visibility, String returnType) {
+
+	public Method(String name, String visibility, String returnType) {
 		this.name = name;
 		this.visibility = visibility;
 		this.returnType = returnType;
@@ -39,8 +39,7 @@ public class Method {
 		this.isAbstract = false;
 		this.isStatic = false;
 	}
-	
-	
+
 	// Getters and setters
 
 	public String getName() {
@@ -51,11 +50,11 @@ public class Method {
 		this.name = name;
 	}
 
-	public int getVisibility() {
+	public String getVisibility() {
 		return visibility;
 	}
 
-	public void setVisibility(int visibility) {
+	public void setVisibility(String visibility) {
 		this.visibility = visibility;
 	}
 
@@ -90,6 +89,19 @@ public class Method {
 	public void setStatic(boolean isStatic) {
 		this.isStatic = isStatic;
 	}
-	
-	
+
+	public String toString() {
+		String res = visibility + " " + returnType + " " + name + " ( ";
+		int index = 0;
+		for(Variable var : variableList) {
+			res += var.getType() + " " + var.getName();
+			index++;
+			if(index < variableList.size()) {
+				res += ",";
+			}
+		}
+		res+= ")";
+		return res;
+	}
+
 }
