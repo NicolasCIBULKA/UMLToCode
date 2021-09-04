@@ -10,6 +10,7 @@ import java.awt.RenderingHints;
 import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.Line2D.Float;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -132,9 +133,25 @@ public class ShapePanel extends JPanel {
 	public void removeShape(ShapeUnit shape) {
 		if (shape instanceof ShapeClass) {
 			nodeMap.remove(shape);
-		} else {
+			cleanEdges(shape);
+		} else if (shape instanceof ShapeLink) {
 			edgeMap.remove(shape);
+			
 		}
+	}
+
+	private void cleanEdges(ShapeUnit shape) {
+		List<ShapeLink> tempList = new ArrayList<ShapeLink>();
+		for(ShapeLink link : edgeMap.keySet()) {
+			if((link.getShapeSource() == ((ShapeClass)shape)) ||  (link.getShapeDest() == ((ShapeClass)shape))){
+				tempList.add(link);
+			}
+		}
+		
+		for(ShapeLink link : tempList) {
+			edgeMap.remove(link);
+		}
+
 	}
 
 	/**
@@ -360,6 +377,8 @@ public class ShapePanel extends JPanel {
 		float destOrd = (float) link.getShapeDest().getMainShape().getBounds2D().getCenterY();
 		;
 		link.setLink(new Line2D.Float(sourceAbs, sourceOrd, destAbs, destOrd));
+		link.setPoints(sourceAbs, sourceOrd, destAbs, destOrd);
+		System.out.println(link.getLink().contains((sourceAbs+destAbs)/2 , (sourceOrd+destOrd)/2));
 		g2d.draw(link.getLink());
 		// g2d.draw(new Line2D.Float(0,0,100,100));
 
@@ -376,18 +395,17 @@ public class ShapePanel extends JPanel {
 		float destOrd = (float) link.getShapeDest().getMainShape().getBounds2D().getCenterY();
 		;
 		link.setLink(new Line2D.Float(sourceAbs, sourceOrd, destAbs, destOrd));
+		link.setPoints(sourceAbs, sourceOrd, destAbs, destOrd);
+
 		g2d.draw(link.getLink());
 	}
 
 	public void drawImplementsEdge(ShapeLink link) {
 		// draw Line
-		float[] dashingPattern = {5f, 5f};
-		
-		
-		
+		float[] dashingPattern = { 5f, 5f };
+
 		g2d.setColor(Color.DARK_GRAY);
-		g2d.setStroke(new BasicStroke(2f, BasicStroke.CAP_BUTT,
-		        BasicStroke.JOIN_MITER, 1.0f, dashingPattern, 0.0f));
+		g2d.setStroke(new BasicStroke(2f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 1.0f, dashingPattern, 0.0f));
 
 		float sourceAbs = (float) link.getShapeSource().getMainShape().getBounds2D().getCenterX();
 		float sourceOrd = (float) link.getShapeSource().getMainShape().getBounds2D().getCenterY();
@@ -395,6 +413,8 @@ public class ShapePanel extends JPanel {
 		float destOrd = (float) link.getShapeDest().getMainShape().getBounds2D().getCenterY();
 		;
 		link.setLink(new Line2D.Float(sourceAbs, sourceOrd, destAbs, destOrd));
+		link.setPoints(sourceAbs, sourceOrd, destAbs, destOrd);
+
 		g2d.draw(link.getLink());
 	}
 

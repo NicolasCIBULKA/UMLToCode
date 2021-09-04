@@ -30,6 +30,7 @@ import engine.GraphEngine;
 import exceptions.ElementAlreadyExistException;
 import exceptions.ImpossibleLinkException;
 import graphicalElements.ShapeClass;
+import graphicalElements.ShapeLink;
 import graphicalElements.ShapePanel;
 import graphicalElements.ShapeUnit;
 
@@ -165,10 +166,17 @@ public class GUImain extends JFrame {
 
 			if (!iconPanel.getCursorState().equals("none")) {
 				// search if an element is aimed
+				for(ShapeLink shape : shapePanel.getEdgeMap().keySet()) {
+					System.out.println(shape.isPointContained(abs, ord));
+					if(shape.isPointContained(abs, ord)) {
+						selectedShape = shape;
+						System.out.println("wanted edge: "+shape.getEdge());
+					}
+				}
 				for (ShapeClass shape : shapePanel.getNodeMap().keySet()) {
 					if (shape.getMainShape().contains(abs, ord)) {
 						selectedShape = shape;
-						System.out.println(shape.getNode().getName());
+						System.out.println("wanted node: " + shape.getNode().getName());
 					}
 				}
 
@@ -195,23 +203,23 @@ public class GUImain extends JFrame {
 					shapePanel.addShapeClass(engine.getNodeFromName("Node" + nodeNumber), abs, ord);
 					nodeNumber++;
 					repaint();
-				}
-				else if (iconPanel.getCursorState().equals("delete object")) {
-					if(selectedShape instanceof ShapeClass) {
+				} else if (iconPanel.getCursorState().equals("delete object")) {
+					if (selectedShape instanceof ShapeClass) {
 						engine.removeNode(((ShapeClass) selectedShape).getNode());
 						shapePanel.removeShape(selectedShape);
 					}
 
 					repaint();
-				}
-				else if(iconPanel.getCursorState().equals("composition")) {
-					if(selectedShape instanceof ShapeClass) {
+				} else if (iconPanel.getCursorState().equals("composition")) {
+					if (selectedShape instanceof ShapeClass) {
 						shapeBuffer.add((ShapeClass) selectedShape);
-						//System.out.println("Composing " + shapeBuffer.size() + " " + shapeBuffer.get(1).getAbs());
-						if(shapeBuffer.size() >= 2) {
+						// System.out.println("Composing " + shapeBuffer.size() + " " +
+						// shapeBuffer.get(1).getAbs());
+						if (shapeBuffer.size() >= 2) {
 							System.out.println(shapeBuffer.size());
 							try {
-								ComposingEdge edge = new ComposingEdge(((ShapeClass) shapeBuffer.get(0)).getNode(), ((ShapeClass) shapeBuffer.get(1)).getNode(), 0, 0);
+								ComposingEdge edge = new ComposingEdge(((ShapeClass) shapeBuffer.get(0)).getNode(),
+										((ShapeClass) shapeBuffer.get(1)).getNode(), 0, 0);
 								engine.addComposingEdge(edge);
 								ShapeClass source = ((ShapeClass) shapeBuffer.get(1));
 								ShapeClass dest = ((ShapeClass) shapeBuffer.get(0));
@@ -224,15 +232,16 @@ public class GUImain extends JFrame {
 							repaint();
 						}
 					}
-				}
-				else if(iconPanel.getCursorState().equals("heritage")) {
-					if(selectedShape instanceof ShapeClass) {
+				} else if (iconPanel.getCursorState().equals("heritage")) {
+					if (selectedShape instanceof ShapeClass) {
 						shapeBuffer.add((ShapeClass) selectedShape);
-						//System.out.println("Composing " + shapeBuffer.size() + " " + shapeBuffer.get(1).getAbs());
-						if(shapeBuffer.size() >= 2) {
+						// System.out.println("Composing " + shapeBuffer.size() + " " +
+						// shapeBuffer.get(1).getAbs());
+						if (shapeBuffer.size() >= 2) {
 							System.out.println(shapeBuffer.size());
 							try {
-								InheritEdge edge = new InheritEdge(((ShapeClass) shapeBuffer.get(0)).getNode(), ((ShapeClass) shapeBuffer.get(1)).getNode());
+								InheritEdge edge = new InheritEdge(((ShapeClass) shapeBuffer.get(0)).getNode(),
+										((ShapeClass) shapeBuffer.get(1)).getNode());
 								engine.addInheritEdge(edge);
 								ShapeClass source = ((ShapeClass) shapeBuffer.get(1));
 								ShapeClass dest = ((ShapeClass) shapeBuffer.get(0));
@@ -245,15 +254,16 @@ public class GUImain extends JFrame {
 							repaint();
 						}
 					}
-				}
-				else if(iconPanel.getCursorState().equals("implements")) {
-					if(selectedShape instanceof ShapeClass) {
+				} else if (iconPanel.getCursorState().equals("implements")) {
+					if (selectedShape instanceof ShapeClass) {
 						shapeBuffer.add((ShapeClass) selectedShape);
-						//System.out.println("Composing " + shapeBuffer.size() + " " + shapeBuffer.get(1).getAbs());
-						if(shapeBuffer.size() >= 2) {
+						// System.out.println("Composing " + shapeBuffer.size() + " " +
+						// shapeBuffer.get(1).getAbs());
+						if (shapeBuffer.size() >= 2) {
 							System.out.println(shapeBuffer.size());
 							try {
-								ImplementsEdge edge = new ImplementsEdge(((ShapeClass) shapeBuffer.get(0)).getNode(), ((ShapeClass) shapeBuffer.get(1)).getNode());
+								ImplementsEdge edge = new ImplementsEdge(((ShapeClass) shapeBuffer.get(0)).getNode(),
+										((ShapeClass) shapeBuffer.get(1)).getNode());
 								engine.addImplementsEdge(edge);
 								ShapeClass source = ((ShapeClass) shapeBuffer.get(1));
 								ShapeClass dest = ((ShapeClass) shapeBuffer.get(0));
@@ -266,9 +276,19 @@ public class GUImain extends JFrame {
 							repaint();
 						}
 					}
-				}
-				else if(iconPanel.getCursorState().equals("selection")) {
+				} else if (iconPanel.getCursorState().equals("selection")) {
 					System.out.println(((ShapeClass) selectedShape).getNode());
+				} else if (iconPanel.getCursorState().equals("delete")) {
+					System.out.println("Delete Mode");
+					if (selectedShape instanceof ShapeClass) {
+						engine.removeNode(((ShapeClass) selectedShape).getNode());
+						shapePanel.removeShape(selectedShape);
+						System.out.println(engine.getEdgeList());
+					} else if (selectedShape instanceof ShapeLink) {
+						engine.removeEdge(((ShapeLink) selectedShape).getEdge());
+						shapePanel.removeShape(selectedShape);
+					}
+					repaint();
 				}
 			}
 

@@ -35,11 +35,11 @@ public class IconPanel extends JPanel {
 		mainPanel = this;
 		
 
-		String buttonName[] = { "selection", "hand", "class", "interface", "composition", "heritage", "implements", "delete object", "delete link" };
+		String buttonName[] = { "selection", "hand", "class", "interface", "composition", "heritage", "implements", "delete"};
 		String buttonTitle[] = { "Sélectionner", "Déplacer", "Classe", "Interface", "Composition", "Heritage",
-				"Implémentation","Supprimer un objet", "Supprimer un lien" };
+				"Implémentation","Supprimer" };
 		String pressedImages[] = { "cursorPressed", "openHandPressed", "newEntityPressed", "newAssoPressed", "newLinkPressed", "deleteObjectPressed", "deleteLinkPressed" };
-		String standardImages[] = { "cursor", "openHand", "newEntity", "newAsso", "newLink", "deleteObject", "deleteLink" };
+		String standardImages[] = { "cursor", "openHand", "newEntity", "newAsso", "newLink", "delete"};
 
 		int mainPanelWidth = 0;
 		for (int index = 0; index < buttonTitle.length ; index++) {

@@ -19,6 +19,11 @@ public class ShapeLink extends ShapeUnit {
 	private ShapeClass shapeDest;
 	private Shape link;
 
+	private float sourceAbs;
+	private float sourceOrd;
+	private float destAbs;
+	private float destord;
+
 	// ---------------------
 	// Methods
 	// ---------------------
@@ -28,8 +33,29 @@ public class ShapeLink extends ShapeUnit {
 		this.edge = edge;
 		this.shapeSource = shapeSource;
 		this.shapeDest = shapeDest;
+
+		sourceAbs = 0;
+		sourceOrd = 0;
+		destAbs = 0;
+		destord = 0;
 	}
 
+	public void setPoints(float xa, float ya, float xb, float yb) {
+		sourceAbs = xa;
+		sourceOrd = ya;
+		destAbs = xb;
+		destord = yb;
+	}
+
+	public boolean isPointContained(float x, float y) {
+		if((x > sourceAbs && x < destAbs) && (y > sourceOrd && y < destord)) {
+			return true;
+		}
+		else if((x < sourceAbs && x > destAbs) && (y < sourceOrd && y > destord)) {
+			return true;
+		}
+		return false;
+	}
 	// getters and setters
 
 	public Edge getEdge() {
