@@ -4,8 +4,14 @@ import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Toolkit;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.JFrame;
 import javax.swing.JMenu;
@@ -14,9 +20,15 @@ import javax.swing.JMenuItem;
 import javax.swing.JScrollPane;
 
 import data.ClassNode;
+import data.ComposingEdge;
+import data.ImplementsEdge;
+import data.InheritEdge;
 import data.InterfaceClass;
 import data.Method;
 import data.Variable;
+import engine.GraphEngine;
+import exceptions.ElementAlreadyExistException;
+import exceptions.ImpossibleLinkException;
 import graphicalElements.ShapeClass;
 import graphicalElements.ShapePanel;
 import graphicalElements.ShapeUnit;
@@ -57,8 +69,14 @@ public class GUImain extends JFrame {
 	JScrollPane jScrollpane;
 
 	// ClickManager
-	
 	private ClickManager clickManager = new ClickManager();
+
+	// variable to create automatical names for Class or Interface
+	int nodeNumber = 0;
+
+	// Engine variable
+	GraphEngine engine;
+
 	// ---------------------
 	// Methods
 	// ---------------------
@@ -66,7 +84,6 @@ public class GUImain extends JFrame {
 	public GUImain() {
 		frame = this;
 		initLayout();
-
 	}
 
 	/**
@@ -80,6 +97,10 @@ public class GUImain extends JFrame {
 
 		setMenuBar();
 
+		// init engine
+
+		engine = new GraphEngine();
+
 		shapePanel = new ShapePanel();
 		shapePanel.addMouseMotionListener(clickManager);
 		shapePanel.addMouseListener(clickManager);
@@ -89,21 +110,7 @@ public class GUImain extends JFrame {
 		jScrollpane.getHorizontalScrollBar().setUnitIncrement(10);
 		contentPane.add(iconPanel, BorderLayout.NORTH);
 		contentPane.add(jScrollpane, BorderLayout.CENTER);
-		ClassNode node = new ClassNode("test");
 
-		node.getVariableList().add(new Variable("test", " String", "+"));
-		node.getVariableList().add(new Variable("test", " String", "+"));
-		node.getVariableList().add(new Variable("test", " String", "+"));
-		node.getVariableList().add(new Variable("test", " String", "+"));
-		node.getVariableList().add(new Variable("test", " String", "+"));
-
-		node.getMethodList().add(new Method("test", "+", "void", node.getVariableList(), false, false));
-		node.getMethodList().add(new Method("test", "+", "void", node.getVariableList(), false, false));
-		node.getMethodList().add(new Method("test", "+", "void", node.getVariableList(), false, false));
-
-		InterfaceClass node2 = new InterfaceClass("testInterface", node.getMethodList());
-		shapePanel.getNodeMap().put(new ShapeClass(node2, 300, 500), node2);
-		shapePanel.getNodeMap().put(new ShapeClass(node, 100, 100), node);
 		// shapePanel.addShapeClass(node, 100, 100);
 
 		// set the jframe position and size
@@ -139,7 +146,6 @@ public class GUImain extends JFrame {
 		frame.setJMenuBar(menubar);
 	}
 
-
 	/**
 	 * Class to detect clicks on the ShapePanel
 	 * 
@@ -150,36 +156,140 @@ public class GUImain extends JFrame {
 		private int abs;
 		private int ord;
 
+		private List<ShapeClass> shapeBuffer = new ArrayList<ShapeClass>();
+
 		public void mousePressed(MouseEvent e) {
 			abs = e.getX();
 			ord = e.getY();
 			selectedShape = null;
-			for(ShapeClass shape : shapePanel.getNodeMap().keySet()) {
-				if(shape.getMainShape().contains(abs, ord)) {
-					selectedShape = shape;
-					System.out.println(shape.getNode().getName());
+
+			if (!iconPanel.getCursorState().equals("none")) {
+				// search if an element is aimed
+				for (ShapeClass shape : shapePanel.getNodeMap().keySet()) {
+					if (shape.getMainShape().contains(abs, ord)) {
+						selectedShape = shape;
+						System.out.println(shape.getNode().getName());
+					}
+				}
+
+				if (iconPanel.getCursorState().equals("class")) {
+					try {
+						engine.addClass("Node" + nodeNumber);
+						System.out.println(engine.getNodeList());
+					} catch (ElementAlreadyExistException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+
+					shapePanel.addShapeClass(engine.getNodeFromName("Node" + nodeNumber), abs, ord);
+					nodeNumber++;
+					repaint();
+				} else if (iconPanel.getCursorState().equals("interface")) {
+					try {
+						engine.addInterface("Node" + nodeNumber);
+					} catch (ElementAlreadyExistException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+
+					shapePanel.addShapeClass(engine.getNodeFromName("Node" + nodeNumber), abs, ord);
+					nodeNumber++;
+					repaint();
+				}
+				else if (iconPanel.getCursorState().equals("delete object")) {
+					if(selectedShape instanceof ShapeClass) {
+						engine.removeNode(((ShapeClass) selectedShape).getNode());
+						shapePanel.removeShape(selectedShape);
+					}
+
+					repaint();
+				}
+				else if(iconPanel.getCursorState().equals("composition")) {
+					if(selectedShape instanceof ShapeClass) {
+						shapeBuffer.add((ShapeClass) selectedShape);
+						//System.out.println("Composing " + shapeBuffer.size() + " " + shapeBuffer.get(1).getAbs());
+						if(shapeBuffer.size() >= 2) {
+							System.out.println(shapeBuffer.size());
+							try {
+								ComposingEdge edge = new ComposingEdge(((ShapeClass) shapeBuffer.get(0)).getNode(), ((ShapeClass) shapeBuffer.get(1)).getNode(), 0, 0);
+								engine.addComposingEdge(edge);
+								ShapeClass source = ((ShapeClass) shapeBuffer.get(1));
+								ShapeClass dest = ((ShapeClass) shapeBuffer.get(0));
+								shapePanel.addShapeLink(edge, source, dest);
+								shapeBuffer.clear();
+							} catch (ImpossibleLinkException e1) {
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
+							}
+							repaint();
+						}
+					}
+				}
+				else if(iconPanel.getCursorState().equals("heritage")) {
+					if(selectedShape instanceof ShapeClass) {
+						shapeBuffer.add((ShapeClass) selectedShape);
+						//System.out.println("Composing " + shapeBuffer.size() + " " + shapeBuffer.get(1).getAbs());
+						if(shapeBuffer.size() >= 2) {
+							System.out.println(shapeBuffer.size());
+							try {
+								InheritEdge edge = new InheritEdge(((ShapeClass) shapeBuffer.get(0)).getNode(), ((ShapeClass) shapeBuffer.get(1)).getNode());
+								engine.addInheritEdge(edge);
+								ShapeClass source = ((ShapeClass) shapeBuffer.get(1));
+								ShapeClass dest = ((ShapeClass) shapeBuffer.get(0));
+								shapePanel.addShapeLink(edge, source, dest);
+								shapeBuffer.clear();
+							} catch (ImpossibleLinkException e1) {
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
+							}
+							repaint();
+						}
+					}
+				}
+				else if(iconPanel.getCursorState().equals("implements")) {
+					if(selectedShape instanceof ShapeClass) {
+						shapeBuffer.add((ShapeClass) selectedShape);
+						//System.out.println("Composing " + shapeBuffer.size() + " " + shapeBuffer.get(1).getAbs());
+						if(shapeBuffer.size() >= 2) {
+							System.out.println(shapeBuffer.size());
+							try {
+								ImplementsEdge edge = new ImplementsEdge(((ShapeClass) shapeBuffer.get(0)).getNode(), ((ShapeClass) shapeBuffer.get(1)).getNode());
+								engine.addImplementsEdge(edge);
+								ShapeClass source = ((ShapeClass) shapeBuffer.get(1));
+								ShapeClass dest = ((ShapeClass) shapeBuffer.get(0));
+								shapePanel.addShapeLink(edge, source, dest);
+								shapeBuffer.clear();
+							} catch (ImpossibleLinkException e1) {
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
+							}
+							repaint();
+						}
+					}
+				}
+				else if(iconPanel.getCursorState().equals("selection")) {
+					System.out.println(((ShapeClass) selectedShape).getNode());
 				}
 			}
+
 		}
-		
+
 		public void mouseDragged(MouseEvent e) {
-			int dx = e.getX() - getAbs();
-			int dy = e.getY() - getOrd();
-			
-			float newX = ((ShapeClass) selectedShape).getAbs() + dx;
-			float newY = ((ShapeClass) selectedShape).getOrd() + dy;
-			System.out.println("dragged ");
-			if(selectedShape != null && iconPanel.getCursorState().equals("hand")) { // TODO only if move is active
-				if(selectedShape instanceof ShapeClass) {
-					((ShapeClass) selectedShape).setAbs(dx);
-					((ShapeClass) selectedShape).setOrd(dy);
+			int dx = e.getX() - abs;
+			int dy = e.getY() - ord;
+
+			System.out.println("dragged");
+			if (selectedShape != null && iconPanel.getCursorState().equals("hand")) { // TODO only if move is active
+				if (selectedShape instanceof ShapeClass) {
+					((ShapeClass) selectedShape).setAbs(((ShapeClass) selectedShape).getAbs() + dx);
+					((ShapeClass) selectedShape).setOrd(((ShapeClass) selectedShape).getOrd() + dy);
 					repaint();
 				}
 			}
-//			abs+=dx;
-//			ord+=dy;
+			abs += dx;
+			ord += dy;
 		}
-		
+
 		// getters and setters
 
 		public int getAbs() {
@@ -199,7 +309,7 @@ public class GUImain extends JFrame {
 		}
 
 	}
-	
+
 	public ClickManager getClickManager() {
 		return clickManager;
 	}

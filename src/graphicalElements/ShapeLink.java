@@ -15,7 +15,8 @@ public class ShapeLink extends ShapeUnit {
 	// ---------------------
 
 	private Edge edge;
-
+	private ShapeClass shapeSource;
+	private ShapeClass shapeDest;
 	private Shape link;
 
 	// ---------------------
@@ -23,10 +24,12 @@ public class ShapeLink extends ShapeUnit {
 	// ---------------------
 
 	// Constructor
-	public ShapeLink(Edge edge) {
+	public ShapeLink(Edge edge, ShapeClass shapeSource, ShapeClass shapeDest) {
 		this.edge = edge;
+		this.shapeSource = shapeSource;
+		this.shapeDest = shapeDest;
 	}
-	
+
 	// getters and setters
 
 	public Edge getEdge() {
@@ -43,6 +46,22 @@ public class ShapeLink extends ShapeUnit {
 
 	public void setLink(Shape link) {
 		this.link = link;
+	}
+
+	public ShapeClass getShapeSource() {
+		return shapeSource;
+	}
+
+	public void setShapeSource(ShapeClass shapeSource) {
+		this.shapeSource = shapeSource;
+	}
+
+	public ShapeClass getShapeDest() {
+		return shapeDest;
+	}
+
+	public void setShapeDest(ShapeClass shapeDest) {
+		this.shapeDest = shapeDest;
 	}
 
 }

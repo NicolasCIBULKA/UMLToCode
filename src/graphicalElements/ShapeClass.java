@@ -205,4 +205,8 @@ public class ShapeClass extends ShapeUnit {
 		((Rectangle2D) variableShape).setRect(abs, ord + headHeight, generalWidth, variableHeight);
 		((Rectangle2D) methodShape).setRect(abs, ord + headHeight + variableHeight, generalWidth, methodsHeight);
 	}
+	
+	public String toString() {
+		return this.getNode().getName() + " : " + this.getAbs() + " - " + this.getOrd();
+	}
 }

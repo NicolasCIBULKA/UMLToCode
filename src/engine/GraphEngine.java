@@ -152,16 +152,15 @@ public class GraphEngine {
 	 * @param nameDestination
 	 * @throws ImpossibleLinkException
 	 */
-	public void addInheritEdge(String nameSource, String nameDestination) throws ImpossibleLinkException {
+	public void addInheritEdge(Edge edge) throws ImpossibleLinkException {
 
-		Node sourceNode = getNodeFromName(nameSource);
-		Node destinationNode = getNodeFromName(nameDestination);
+		Node sourceNode = edge.getSourceNode();
+		Node destinationNode = edge.getDestinationNode();
 
-		if (nameSource == nameDestination || getProject().getUMLGraph().containsEdge(sourceNode, destinationNode)) {
+		if (sourceNode == destinationNode  || getProject().getUMLGraph().containsEdge(sourceNode, destinationNode)) {
 			throw new ImpossibleLinkException("ERROR - Impossible to link together those two nodes");
 		}
 
-		InheritEdge edge = new InheritEdge(sourceNode, destinationNode);
 		this.getProject().getUMLGraph().addEdge(sourceNode, destinationNode, edge);
 		edgeList.add(edge);
 	}
@@ -173,11 +172,11 @@ public class GraphEngine {
 	 * @param nameDestination
 	 * @throws ImpossibleLinkException
 	 */
-	public void addComposingEdge(String nameSource, String nameDestination) throws ImpossibleLinkException {
-		Node sourceNode = getNodeFromName(nameSource);
-		Node destinationNode = getNodeFromName(nameDestination);
+	public void addComposingEdge(ComposingEdge edge) throws ImpossibleLinkException {
+		Node sourceNode = edge.getSourceNode();
+		Node destinationNode = edge.getDestinationNode();
 
-		if (nameSource == nameDestination || getProject().getUMLGraph().containsEdge(sourceNode, destinationNode)) {
+		if (sourceNode == destinationNode || getProject().getUMLGraph().containsEdge(sourceNode, destinationNode)) {
 			throw new ImpossibleLinkException("ERROR - Impossible to link together those two nodes");
 		}
 
@@ -186,7 +185,6 @@ public class GraphEngine {
 
 		}
 
-		ComposingEdge edge = new ComposingEdge(sourceNode, destinationNode, 0, 0);
 		this.getProject().getUMLGraph().addEdge(sourceNode, destinationNode, edge);
 		edgeList.add(edge);
 	}
@@ -198,11 +196,11 @@ public class GraphEngine {
 	 * @param nameDestination
 	 * @throws ImpossibleLinkException
 	 */
-	public void addImplementsEdge(String nameSource, String nameDestination) throws ImpossibleLinkException {
-		Node sourceNode = getNodeFromName(nameSource);
-		Node destinationNode = getNodeFromName(nameDestination);
+	public void addImplementsEdge(Edge edge) throws ImpossibleLinkException {
+		Node sourceNode = edge.getSourceNode();
+		Node destinationNode = edge.getDestinationNode();
 
-		if (nameSource == nameDestination || getProject().getUMLGraph().containsEdge(sourceNode, destinationNode)) {
+		if (sourceNode.getName() == destinationNode.getName() || getProject().getUMLGraph().containsEdge(sourceNode, destinationNode)) {
 			throw new ImpossibleLinkException("ERROR - Impossible to link together those two nodes");
 		}
 
@@ -210,7 +208,6 @@ public class GraphEngine {
 			throw new ImpossibleLinkException("ERROR - Impossible to link together those two nodes");
 		}
 
-		ImplementsEdge edge = new ImplementsEdge(sourceNode, destinationNode);
 		this.getProject().getUMLGraph().addEdge(sourceNode, destinationNode, edge);
 		edgeList.add(edge);
 	}

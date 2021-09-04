@@ -7,7 +7,9 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
+import java.awt.geom.Line2D.Float;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,7 +18,9 @@ import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 
 import data.ClassNode;
+import data.ComposingEdge;
 import data.Edge;
+import data.InheritEdge;
 import data.Method;
 import data.Node;
 import data.Variable;
@@ -79,13 +83,17 @@ public class ShapePanel extends JPanel {
 		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 
+		// Paint Links
+		for (ShapeLink link : edgeMap.keySet()) {
+			System.out.println("Link = " + link.getShapeSource() + " - " + link.getShapeDest());
+			drawEdge(link);
+		}
+
 		// Paint Class
 		for (ShapeClass shape : nodeMap.keySet()) {
 			setSize(shape);
 			drawNode(shape);
 		}
-		// Paint Links
-
 	}
 
 	// Add and Remove Shapes
@@ -98,10 +106,10 @@ public class ShapePanel extends JPanel {
 	 * @param ord
 	 * @return
 	 */
-	public ShapeClass addShapeClass(Node node, float abs, float ord) {
+	public void addShapeClass(Node node, float abs, float ord) {
 		ShapeClass newClass = new ShapeClass(node, abs, ord);
+		getNodeMap().put(newClass, node);
 		repaint();
-		return newClass;
 	}
 
 	/**
@@ -110,10 +118,10 @@ public class ShapePanel extends JPanel {
 	 * @param edge
 	 * @return
 	 */
-	public ShapeLink addShapeLink(Edge edge) {
-		ShapeLink newLink = new ShapeLink(edge);
+	public void addShapeLink(Edge edge, ShapeClass shapeSource, ShapeClass shapeDest) {
+		ShapeLink newLink = new ShapeLink(edge, shapeSource, shapeDest);
+		getEdgeMap().put(newLink, edge);
 		repaint();
-		return newLink;
 	}
 
 	/**
@@ -325,6 +333,69 @@ public class ShapePanel extends JPanel {
 		shape.setMethodsHeight(20.0f + shape.getNode().getMethodList().size() * 20f);
 
 		shape.setMainHeight(shape.getHeadHeight() + shape.getVariableHeight() + shape.getMethodsHeight());
+	}
+
+	public void drawEdge(ShapeLink link) {
+		if (link.getEdge() instanceof ComposingEdge) {
+
+			drawComposingEdge(link);
+			System.out.println("draw composing edge");
+		} else if (link.getEdge() instanceof InheritEdge) {
+			drawInheritEdge(link);
+		} else { // implements
+			drawImplementsEdge(link);
+		}
+	}
+
+	public void drawComposingEdge(ShapeLink link) {
+		// get Position
+
+		// draw Line
+		g2d.setColor(Color.BLACK);
+		g2d.setStroke(new BasicStroke(2f));
+
+		float sourceAbs = (float) link.getShapeSource().getMainShape().getBounds2D().getCenterX();
+		float sourceOrd = (float) link.getShapeSource().getMainShape().getBounds2D().getCenterY();
+		float destAbs = (float) link.getShapeDest().getMainShape().getBounds2D().getCenterX();
+		float destOrd = (float) link.getShapeDest().getMainShape().getBounds2D().getCenterY();
+		;
+		link.setLink(new Line2D.Float(sourceAbs, sourceOrd, destAbs, destOrd));
+		g2d.draw(link.getLink());
+		// g2d.draw(new Line2D.Float(0,0,100,100));
+
+	}
+
+	public void drawInheritEdge(ShapeLink link) {
+		// draw Line
+		g2d.setColor(Color.BLACK);
+		g2d.setStroke(new BasicStroke(2f));
+
+		float sourceAbs = (float) link.getShapeSource().getMainShape().getBounds2D().getCenterX();
+		float sourceOrd = (float) link.getShapeSource().getMainShape().getBounds2D().getCenterY();
+		float destAbs = (float) link.getShapeDest().getMainShape().getBounds2D().getCenterX();
+		float destOrd = (float) link.getShapeDest().getMainShape().getBounds2D().getCenterY();
+		;
+		link.setLink(new Line2D.Float(sourceAbs, sourceOrd, destAbs, destOrd));
+		g2d.draw(link.getLink());
+	}
+
+	public void drawImplementsEdge(ShapeLink link) {
+		// draw Line
+		float[] dashingPattern = {5f, 5f};
+		
+		
+		
+		g2d.setColor(Color.DARK_GRAY);
+		g2d.setStroke(new BasicStroke(2f, BasicStroke.CAP_BUTT,
+		        BasicStroke.JOIN_MITER, 1.0f, dashingPattern, 0.0f));
+
+		float sourceAbs = (float) link.getShapeSource().getMainShape().getBounds2D().getCenterX();
+		float sourceOrd = (float) link.getShapeSource().getMainShape().getBounds2D().getCenterY();
+		float destAbs = (float) link.getShapeDest().getMainShape().getBounds2D().getCenterX();
+		float destOrd = (float) link.getShapeDest().getMainShape().getBounds2D().getCenterY();
+		;
+		link.setLink(new Line2D.Float(sourceAbs, sourceOrd, destAbs, destOrd));
+		g2d.draw(link.getLink());
 	}
 
 	// getters and setters

@@ -1,5 +1,6 @@
 package tests;
 
+import data.ComposingEdge;
 import data.Project;
 import engine.GraphEngine;
 import exceptions.ElementAlreadyExistException;
@@ -18,13 +19,13 @@ public class Tests {
 			engine.addClass("class4");
 			
 			
-			engine.addComposingEdge("class1", "class2");
+			engine.addComposingEdge(new ComposingEdge(engine.getNodeFromName("class1"), engine.getNodeFromName("class2"), 1, 0));
 			
 			engine.addInheritEdge("class2", "class3");
 			
 			engine.removeEdge(engine.getEdgeList().get(0));
 			
-			engine.addComposingEdge("class1", "class2");
+			engine.addComposingEdge(new ComposingEdge(engine.getNodeFromName("class1"), engine.getNodeFromName("class2"), 1, 0));
 			
 			engine.removeNode(engine.getNodeFromName("class1"));
 			
